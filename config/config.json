@@ -1,8 +1,8 @@
 {
   "development": {
-    "username": "postgress",
+    "username": "postgres",
     "password": "password",
-    "database": "contacts",
+    "database": "fluid_contact_address_book",
     "host": "127.0.0.1",
     "dialect": "postgres"
   },
