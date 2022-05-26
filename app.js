@@ -8,8 +8,17 @@ app.use(express.json())
 app.post('/user', async(req, res) =>{
     const {userName, password, email} = req.body
 
+    const user = await User.findOne({
+        where: {
+            email: email
+        }
+    })
+    if(user !== null){
+        res.status(400).json("User already exist with that email")
+    }
+
     try{
-        const user = await User.create({userName, password, email}) 
+        const user = await User.create({userName, password, email})
         
         return res.json(user)
     }catch(err){
@@ -23,7 +32,7 @@ app.get('/users', async(req, res) =>{
     try{
         const users = await User.findAll()
         if(users.length < 1){
-            res.status(500).json({error: "No users found"})
+            res.status(200).json({msg: "No users found"})
         }
 
         return res.json(users)
@@ -42,7 +51,7 @@ app.get('/user/:uuid', async(req, res) =>{
             include: 'contact'
         })
         if(user === null){
-            return res.status(500).json({error: "User not found"})
+            return res.status(400).json({error: `User with id ${uuid} not found`})
         }
 
         return res.json(user)
@@ -55,6 +64,15 @@ app.get('/user/:uuid', async(req, res) =>{
 //add a contact to user
 app.post('/contact', async (req, res) =>{
     const {uuid, name, email, phoneNumber } = req.body;
+
+    const contact = await Contact.findOne({
+        where: {
+            email: email
+        }
+    })
+    if(contact !== null){
+        res.status(400).json({msg: `Contact with email ${email} not found`})
+    }
     try{
         const user = await User.findOne({
             where: {
@@ -78,7 +96,7 @@ app.get('/contacts', async (req, res) =>{
     try{
         const contacts = await Contact.findAll({include: [{ model: User, as: "user" }]})
         if(contacts.length < 1){
-            res.status(500).json({error: "No users found"})
+            res.status(200).json({message: "No users found"})
         }
         return res.json(contacts)
     }catch(err){
@@ -89,18 +107,18 @@ app.get('/contacts', async (req, res) =>{
 
 //delete a contact 
 app.delete('/contact/:id', async (req, res) =>{
-    const id = req.param.id
+    const id = req.params.id
     try{
         const contact = await Contact.findOne({
             where: {
                 id: id
             }
         })
-        if(contact === null ){
-            res.status(500).json({error: "No contact found with that id"})
+        if(contact === null){
+            res.status(500).json({error: "No contact found"})
         }
 
-        contact = await contact.destroy()
+        await contact.destroy()
 
         return res.json({ message: 'User deleted' })
     }catch(err){
@@ -137,7 +155,7 @@ app.put('/contact/:id', async (req, res) =>{
 
 
 app.listen({port:3000}, async ()=>{
-    console.log('Server upon http://localhost3000');
+    console.log('Server upon http://localhost/3000');
     await sequelize.authenticate()
     console.log('Database connected!');
 }) 
