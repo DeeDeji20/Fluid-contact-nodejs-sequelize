@@ -154,7 +154,7 @@ app.put('/contact/:id', async (req, res) =>{
 
 
 
-app.listen({port:3000}, async ()=>{
+app.listen(process.env.PORT || 3000, async ()=>{
     console.log('Server upon http://localhost/3000');
     await sequelize.authenticate()
     console.log('Database connected!');
